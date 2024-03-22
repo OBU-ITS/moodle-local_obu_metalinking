@@ -1,5 +1,4 @@
 <?php
-
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -19,18 +18,19 @@
  * @package    local_obu_metalinking
  * @author     Joe Souch
  * @copyright  2024, Oxford Brookes University {@link http://www.brookes.ac.uk/}
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version = 2024012304;
-$plugin->requires = 2012120301;
-$plugin->component = 'local_obu_metalinking'; // Full name of the plugin (used for diagnostics): plugintype_pluginname
-
-$plugin->maturity = MATURITY_STABLE;
-//MATURITY_ALPHA, MATURITY_BETA, MATURITY_RC, MATURITY_STABLE (Moodle 2.0 and above)
-
-$plugin->release = 'v1.0.1';
-$plugin->dependencies = array(
-    'enrol_meta' => 2022112800
-);
+$tasks = [
+    [
+        'classname' => '\local_obu_metalinking\task\ensure_meta_enrol_group',
+        'blocking' => 0,
+        'minute' => '5',
+        'hour' => '0-6,18-23',
+        'day' => '*',
+        'month' => '*',
+        'dayofweek' => '*',
+    ]
+];

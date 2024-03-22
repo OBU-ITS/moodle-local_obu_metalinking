@@ -22,6 +22,8 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+defined('MOODLE_INTERNAL') || die();
+
 function get_teaching_course(object $course) : object {
     global $DB;
 
@@ -50,6 +52,10 @@ function determine_course_id(array $courses, string $course_id) : string {
     return $course_id;
 }
 
+function get_metalinking_enrolment_group_idnumber(string $course_idnumber) : string {
+    return 'ML.' . $course_idnumber .'';
+}
+
 function get_teaching_course_ids(int $course_id) : array {
     global $DB;
 
@@ -62,4 +68,49 @@ function get_teaching_course_ids(int $course_id) : array {
         . '   AND parent.visible = 1';
 
     return $DB->get_records_sql($sql, array($course_id));
+}
+
+/**
+ * Create a new group with the course's name.
+ *
+ * @param int $courseid
+ * @param int $linkedcourseid
+ * @return int $groupid Group ID for this cohort.
+ */
+function obu_metalinking_create_new_group(int $course_id, int $linked_course_id) {
+    global $DB, $CFG;
+
+    $metalinked_course = $DB->get_record('course', array('id' => $linked_course_id), 'shortname, idnumber', MUST_EXIST);
+
+    $a = new stdClass();
+    $a->name = $metalinked_course->shortname;
+
+    // Create a new group for the course meta sync.
+    $groupdata = new stdClass();
+    $groupdata->courseid = $course_id;
+    $groupdata->name = trim(get_string('defaultgroupnametext', 'local_obu_metalinking', $a));
+    $groupdata->idnumber = get_metalinking_enrolment_group_idnumber($metalinked_course->idnumber);
+
+    require_once($CFG->dirroot.'/group/lib.php');
+
+    groups_create_group($groupdata);
+}
+
+function obu_metalinking_update_group(int $group_id, int $course_id, int $linked_course_id) {
+    global $DB, $CFG;
+
+    $metalinked_course = $DB->get_record('course', array('id' => $linked_course_id), 'shortname, idnumber', MUST_EXIST);
+
+    $a = new stdClass();
+    $a->name = $metalinked_course->shortname;
+
+    $groupdata = new stdClass();
+    $groupdata->id = $group_id;
+    $groupdata->courseid = $course_id;
+    $groupdata->name = trim(get_string('defaultgroupnametext', 'local_obu_metalinking', $a));;
+    $groupdata->idnumber = get_metalinking_enrolment_group_idnumber($metalinked_course->idnumber);
+
+    require_once($CFG->dirroot.'/group/lib.php');
+
+    groups_update_group($groupdata);
 }
