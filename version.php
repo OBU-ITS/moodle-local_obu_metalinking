@@ -23,12 +23,12 @@
  */
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version = 2024012314;
+$plugin->version = 2024053000;
 $plugin->requires = 2012120301;
 $plugin->component = 'local_obu_metalinking';
 $plugin->maturity = MATURITY_STABLE;
 
-$plugin->release = 'v1.0.1';
+$plugin->release = 'v2.0.0';
 $plugin->dependencies = array(
     'enrol_meta' => 2022112800,
     'local_obu_group_manager' => 2024051601
