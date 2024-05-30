@@ -27,4 +27,5 @@ $string['privacy:metadata'] = 'The OBU Metalinking plugin does not store any per
 $string['pluginname'] = 'obu_metalinking';
 $string['plugintitle'] = 'OBU Metalinking';
 
-$string['defaultgroupnametext'] = 'Metalink {$a->name} course';
+$string['defaultgroupnametext'] = '{$a->name}';
+$string['defaultteachinggroupnametext'] = '{$a->name}';
