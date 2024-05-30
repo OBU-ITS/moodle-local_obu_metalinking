@@ -26,7 +26,7 @@ define('CLI_SCRIPT', true);
 
 require_once(__DIR__ . '/../../../config.php');
 require_once($CFG->libdir . '/clilib.php');
-require_once($CFG->dirroot . '/local/metagroups/locallib.php');
+require_once($CFG->dirroot . '/local/obu_metalinking/locallib.php');
 
 // Ensure errors are well explained.
 set_debugging(DEBUG_DEVELOPER, true);
