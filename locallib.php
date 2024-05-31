@@ -27,6 +27,7 @@ defined('MOODLE_INTERNAL') || die();
 require_once($CFG->libdir . '/grouplib.php');
 require_once($CFG->dirroot . '/group/lib.php');
 require_once($CFG->dirroot . '/local/obu_metalinking/lib.php');
+require_once($CFG->dirroot . '/local/obu_group_manager/lib.php');
 
 /**
  * Get a list of parent courses for a given course ID
@@ -78,7 +79,7 @@ function local_obu_metalinking_sync(progress_trace $trace, $courseid = null) {
         $trace->output($parent->fullname, 1);
 
         $parentgrooupall = local_obu_metalinking_get_all_group($courseid);
-        $parentnonmetaenrolments = local_obu_metalinking_get_all_nonmeta_enrolled_users($courseid);
+        $parentnonmetaenrolments = local_obu_metalinking_get_all_nonmeta_enrolled_students($courseid);
         foreach ($parentnonmetaenrolments as $user) {
             groups_add_member($parentgrooupall->id, $user->id, 'local_obu_metalinking');
         }
@@ -87,7 +88,7 @@ function local_obu_metalinking_sync(progress_trace $trace, $courseid = null) {
         $children = local_obu_metalinking_child_courses($parent->id);
         foreach ($children as $childid) {
             $childgrooupall = local_obu_metalinking_get_all_group($childid);
-            $childnonmetaenrolments = local_obu_metalinking_get_all_nonmeta_enrolled_users($childid);
+            $childnonmetaenrolments = local_obu_metalinking_get_all_nonmeta_enrolled_students($childid);
             foreach ($childnonmetaenrolments as $user) {
                 groups_add_member($childgrooupall->id, $user->id, 'local_obu_metalinking');
             }
@@ -105,7 +106,7 @@ function local_obu_metalinking_sync(progress_trace $trace, $courseid = null) {
 
                     $metagroup->id = groups_create_group($metagroup, false, false);
 
-                    local_obu_metalinking_add_group_to_grouping($metagroup);
+                    local_obu_group_manager_link_system_grouping($metagroup);
                 }
 
                 $trace->output($metagroup->name, 3);
@@ -120,17 +121,8 @@ function local_obu_metalinking_sync(progress_trace $trace, $courseid = null) {
 }
 
 function local_obu_metalinking_get_all_group($courseid) {
-    global $DB;
 
     $course = get_course($courseid);
 
-    // get group
-    $groupidnumber = local_obu_metalinking_get_group_idnumber($course->idnumber);
-    $group = $DB->get_record('groups', ['courseid' => $courseid, 'idnumber' => $groupidnumber]);
-
-    if(!$group) {
-        $group = local_obu_metalinking_create_parent_group($course->id, $course->idnumber, $course->shortname);
-    }
-
-    return $group;
+    return local_obu_group_manager_create_system_group($course);
 }
