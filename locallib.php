@@ -36,11 +36,11 @@ require_once($CFG->dirroot . '/local/obu_group_manager/lib.php');
  * @return array of course IDs
  */
 function local_obu_metalinking_parent_courses($courseid = null) {
-    if ($courseid !== null) {
-        return local_obu_metalinking_get_teaching_course_ids($courseid);
-    }
+    $courseidobjs = ($courseid !== null)
+        ? local_obu_metalinking_get_teaching_course_ids($courseid)
+        : local_obu_metalinking_get_all_teaching_course_ids();
 
-    return local_obu_metalinking_get_all_teaching_course_ids();
+    return array_map(function($n) { return $n->id; }, $courseidobjs);
 }
 
 /**
@@ -68,13 +68,12 @@ function local_obu_metalinking_sync(progress_trace $trace, $courseid = null) {
     global $DB;
 
     if ($courseid !== null) {
-        $courseidobjs = [$courseid];
+        $courseids = [$courseid];
     } else {
-        $courseidobjs = local_obu_metalinking_parent_courses();
+        $courseids = local_obu_metalinking_parent_courses();
     }
 
-    foreach ($courseidobjs as $courseidobj) {
-        $courseid = $courseidobj->id;
+    foreach ($courseids as $courseid) {
         $parent = get_course($courseid);
 
         $trace->output($parent->fullname, 1);
