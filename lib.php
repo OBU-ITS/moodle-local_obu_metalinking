@@ -55,7 +55,7 @@ function local_obu_metalinking_determine_course_id(array $courses, string $cours
 function local_obu_metalinking_get_teaching_course_ids(int $course_id) : array {
     global $DB;
 
-    $sql = "SELECT parent.id
+    $sql = "SELECT DISTINCT parent.id
             FROM {enrol} e
             JOIN {course} parent ON parent.id = e.courseid
             WHERE e.enrol = 'meta'
@@ -70,7 +70,7 @@ function local_obu_metalinking_get_teaching_course_ids(int $course_id) : array {
 function local_obu_metalinking_get_all_teaching_course_ids() : array {
     global $DB;
 
-    $sql = "SELECT parent.id
+    $sql = "SELECT DISTINCT parent.id
             FROM {enrol} e
             JOIN {course} parent ON parent.id = e.courseid
             WHERE e.enrol = 'meta'
