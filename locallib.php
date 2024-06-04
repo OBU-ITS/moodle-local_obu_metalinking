@@ -108,7 +108,7 @@ function local_obu_metalinking_sync(progress_trace $trace, $courseid = null) {
                     $metagroup->idnumber = $group->idnumber;
                     $metagroup->name = $group->name;
 
-                    $metagroup->id = groups_create_group($metagroup, false, false);
+                    $metagroup->id = groups_create_group($metagroup);
 
                     local_obu_group_manager_link_system_grouping($metagroup);
                 }
@@ -117,7 +117,7 @@ function local_obu_metalinking_sync(progress_trace $trace, $courseid = null) {
 
                 $users = groups_get_members($group->id);
                 foreach ($users as $user) {
-                    groups_add_member($metagroup->id, $user->id, 'local_obu_metalinking', $group->idnumber);
+                    groups_add_member($metagroup->id, $user->id);
                 }
             }
         }
