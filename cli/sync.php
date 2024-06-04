@@ -55,8 +55,9 @@ Options:
 -h, --help            Print out this help
 
 Example:
-\$ sudo -u www-data /usr/bin/php local/obu_metalinking/sync.php
-\$ sudo -u www-data /usr/bin/php local/obu_metalinking/sync.php -c 7
+\$ sudo -u www-data /usr/bin/php local/obu_metalinking/cli/sync.php
+\$ sudo -u www-data /usr/bin/php /var/www/poodle/moodle/local/obu_metalinking/cli/sync.php
+\$ sudo -u www-data /usr/bin/php local/obu_metalinking/cli/sync.php -c 7
 ";
 
     echo $help;

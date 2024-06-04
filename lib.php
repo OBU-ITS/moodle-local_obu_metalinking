@@ -24,9 +24,6 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-//const METALINKING_GROUPING_IDENTIFIER = 'obuSystem';
-//const METALINKING_GROUPING_NAME = 'OBU System';
-
 function local_obu_metalinking_get_teaching_course(object $course) : object {
     global $DB;
 
@@ -55,14 +52,10 @@ function local_obu_metalinking_determine_course_id(array $courses, string $cours
     return $course_id;
 }
 
-//function local_obu_metalinking_get_group_idnumber(string $course_idnumber) : string {
-//    return 'ML.' . $course_idnumber;
-//}
-
 function local_obu_metalinking_get_teaching_course_ids(int $course_id) : array {
     global $DB;
 
-    $sql = "SELECT e.id, parent.id
+    $sql = "SELECT parent.id
             FROM {enrol} e
             JOIN {course} parent ON parent.id = e.courseid
             WHERE e.enrol = 'meta'
@@ -71,13 +64,13 @@ function local_obu_metalinking_get_teaching_course_ids(int $course_id) : array {
                AND parent.shortname LIKE '% (%:%)'
                AND parent.idnumber LIKE '%.%'";
 
-    return $DB->get_records_sql_menu($sql, array(ENROL_INSTANCE_ENABLED, $course_id));
+    return $DB->get_records_sql($sql, array(ENROL_INSTANCE_ENABLED, $course_id));
 }
 
 function local_obu_metalinking_get_all_teaching_course_ids() : array {
     global $DB;
 
-    $sql = "SELECT e.id, parent.id
+    $sql = "SELECT parent.id
             FROM {enrol} e
             JOIN {course} parent ON parent.id = e.courseid
             WHERE e.enrol = 'meta'
@@ -85,7 +78,7 @@ function local_obu_metalinking_get_all_teaching_course_ids() : array {
                AND parent.shortname LIKE '% (%:%)'
                AND parent.idnumber LIKE '%.%'";
 
-    return $DB->get_records_sql_menu($sql, array(ENROL_INSTANCE_ENABLED));
+    return $DB->get_records_sql($sql, array(ENROL_INSTANCE_ENABLED));
 }
 
 function local_obu_metalinking_get_all_nonmeta_enrolled_students($courseid) : array {
@@ -105,87 +98,3 @@ function local_obu_metalinking_get_all_nonmeta_enrolled_students($courseid) : ar
 
     return $DB->get_records_sql($sql, [$courseid]);
 }
-
-///**
-// * Create a new group with the course's name.
-// *
-// * @param int $courseid
-// * @param int $linkedcourseid
-// * @return int $groupid Group ID for this cohort.
-// */
-//function local_obu_metalinking_create_new_group(int $course_id, int $linked_course_id) {
-//    global $DB, $CFG;
-//
-//    $metalinked_course = $DB->get_record('course', array('id' => $linked_course_id), 'shortname, idnumber', MUST_EXIST);
-//
-//    $a = new stdClass();
-//    $a->name = $metalinked_course->shortname;
-//
-//    // Create a new group for the course meta sync.
-//    $groupdata = new stdClass();
-//    $groupdata->courseid = $course_id;
-//    $groupdata->name = trim(get_string('defaultgroupnametext', 'local_obu_metalinking', $a));
-//    $groupdata->idnumber = local_obu_metalinking_get_group_idnumber($metalinked_course->idnumber);
-//
-//    require_once($CFG->dirroot.'/group/lib.php');
-//
-//    $groupdata->id = groups_create_group($groupdata);
-//
-//    local_obu_metalinking_add_group_to_grouping($groupdata);
-//}
-//
-//function local_obu_metalinking_update_group(int $group_id, int $course_id, int $linked_course_id) {
-//    global $DB, $CFG;
-//
-//    $metalinked_course = $DB->get_record('course', array('id' => $linked_course_id), 'shortname, idnumber', MUST_EXIST);
-//
-//    $a = new stdClass();
-//    $a->name = $metalinked_course->shortname;
-//
-//    $groupdata = new stdClass();
-//    $groupdata->id = $group_id;
-//    $groupdata->courseid = $course_id;
-//    $groupdata->name = trim(get_string('defaultgroupnametext', 'local_obu_metalinking', $a));
-//    $groupdata->idnumber = local_obu_metalinking_get_group_idnumber($metalinked_course->idnumber);
-//
-//    require_once($CFG->dirroot.'/group/lib.php');
-//
-//    groups_update_group($groupdata);
-//}
-//
-//function local_obu_metalinking_create_parent_group(int $course_id, string $course_idnumber, string $course_shortname) {
-//    global $CFG;
-//
-//    $a = new stdClass();
-//    $a->name = $course_shortname;
-//
-//    // Create a new group for the course meta sync.
-//    $groupdata = new stdClass();
-//    $groupdata->courseid = $course_id;
-//    $groupdata->name = trim(get_string('defaultteachinggroupnametext', 'local_obu_metalinking', $a));
-//    $groupdata->idnumber = local_obu_metalinking_get_group_idnumber($course_idnumber);
-//
-//    require_once($CFG->dirroot.'/group/lib.php');
-//
-//    $groupdata->id = groups_create_group($groupdata);
-//
-//    local_obu_metalinking_add_group_to_grouping($groupdata);
-//
-//    return $groupdata->id;
-//}
-//
-//function local_obu_metalinking_add_group_to_grouping($group) {
-//    global $DB;
-//
-//    if (!($grouping = $DB->get_record('groupings_groups', array('courseid'=>$group->courseId, 'idnumber'=>METALINKING_GROUPING_IDENTIFIER)))) {
-//
-//        $grouping = new stdClass();
-//        $grouping->name = METALINKING_GROUPING_NAME;
-//        $grouping->courseid = $group->courseId;
-//        $grouping->idnumber = METALINKING_GROUPING_IDENTIFIER;
-//
-//        $grouping->id = groups_create_grouping($grouping);
-//    }
-//
-//    groups_assign_grouping($grouping->id, $group->id);
-//}
