@@ -68,12 +68,13 @@ function local_obu_metalinking_sync(progress_trace $trace, $courseid = null) {
     global $DB;
 
     if ($courseid !== null) {
-        $courseids = [$courseid];
+        $courseidobjs = [$courseid];
     } else {
-        $courseids = local_obu_metalinking_parent_courses();
+        $courseidobjs = local_obu_metalinking_parent_courses();
     }
 
-    foreach (array_unique($courseids) as $courseid) {
+    foreach ($courseidobjs as $courseidobj) {
+        $courseid = $courseidobj->id;
         $parent = get_course($courseid);
 
         $trace->output($parent->fullname, 1);
