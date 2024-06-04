@@ -98,6 +98,10 @@ function local_obu_metalinking_sync(progress_trace $trace, $courseid = null) {
 
             $groups = groups_get_all_groups($child->id);
             foreach ($groups as $group) {
+                if(!local_obu_group_manager_is_system_group($group->idnumber)) {
+                    continue;
+                }
+
                 if (! $metagroup = $DB->get_record('groups', ['courseid' => $parent->id, 'idnumber' => $group->idnumber])) {
                     $metagroup = new stdClass();
                     $metagroup->courseid = $parent->id;

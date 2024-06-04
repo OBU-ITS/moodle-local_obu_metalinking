@@ -71,7 +71,11 @@ class local_obu_metalinking_observer {
             // Get groups from linked course, and delete them from current course.
             $groups = groups_get_all_groups($instance->customint1);
             foreach ($groups as $group) {
-                if ($metagroup = $DB->get_record('groups', ['courseid' => $course->id, 'idnumber' => $group->id])) {
+                if(!local_obu_group_manager_is_system_group($group->idnumber)) {
+                    continue;
+                }
+
+                if ($metagroup = $DB->get_record('groups', ['courseid' => $course->id, 'idnumber' => $group->idnumber])) {
                     groups_delete_group($metagroup);
                 }
             }
@@ -88,6 +92,10 @@ class local_obu_metalinking_observer {
         global $DB;
 
         $group = $event->get_record_snapshot('groups', $event->objectid);
+
+        if(!local_obu_group_manager_is_system_group($group->idnumber)) {
+            return;
+        }
 
         $courseids = local_obu_metalinking_parent_courses($group->courseid);
         foreach ($courseids as $courseid) {
@@ -107,6 +115,10 @@ class local_obu_metalinking_observer {
         global $DB;
 
         $group = $event->get_record_snapshot('groups', $event->objectid);
+
+        if(!local_obu_group_manager_is_system_group($group->idnumber)) {
+            return;
+        }
 
         $courseids = local_obu_metalinking_parent_courses($group->courseid);
         foreach ($courseids as $courseid) {
@@ -131,6 +143,10 @@ class local_obu_metalinking_observer {
 
         $group = $event->get_record_snapshot('groups', $event->objectid);
 
+        if(!local_obu_group_manager_is_system_group($group->idnumber)) {
+            return;
+        }
+
         $courseids = local_obu_metalinking_parent_courses($group->courseid);
         foreach ($courseids as $courseid) {
             $course = get_course($courseid);
@@ -151,6 +167,11 @@ class local_obu_metalinking_observer {
         global $DB;
 
         $group = $event->get_record_snapshot('groups', $event->objectid);
+
+        if(!local_obu_group_manager_is_system_group($group->idnumber)) {
+            return;
+        }
+
         $user = \core_user::get_user($event->relateduserid, '*', MUST_EXIST);
 
         $courseids = local_obu_metalinking_parent_courses($group->courseid);
@@ -173,6 +194,11 @@ class local_obu_metalinking_observer {
         global $DB;
 
         $group = $event->get_record_snapshot('groups', $event->objectid);
+
+        if(!local_obu_group_manager_is_system_group($group->idnumber)) {
+            return;
+        }
+
         $user = \core_user::get_user($event->relateduserid, '*', MUST_EXIST);
 
         $courseids = local_obu_metalinking_parent_courses($group->courseid);
