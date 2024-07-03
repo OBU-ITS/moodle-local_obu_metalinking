@@ -22,27 +22,29 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-function get_teaching_course(object $course) : object {
+defined('MOODLE_INTERNAL') || die();
+
+function local_obu_metalinking_get_teaching_course(object $course) : object {
     global $DB;
 
-    $courses = get_teaching_course_ids($course->id);
+    $courses = local_obu_metalinking_get_teaching_course_ids($course->id);
     if(count($courses) == 0) {
         return $course;
     }
 
-    $course_id = determine_course_id($courses, $course->id);
+    $course_id = local_obu_metalinking_determine_course_id($courses, $course->id);
 
     return $DB->get_record('course', array('id' => $course_id));
 }
 
 
-function get_teaching_course_id(string $course_id) : string {
-    $courses = get_teaching_course_ids($course_id);
+function local_obu_metalinking_get_teaching_course_id(string $course_id) : string {
+    $courses = local_obu_metalinking_get_teaching_course_ids($course_id);
 
-    return determine_course_id($courses, $course_id);
+    return local_obu_metalinking_determine_course_id($courses, $course_id);
 }
 
-function determine_course_id(array $courses, string $course_id) : string {
+function local_obu_metalinking_determine_course_id(array $courses, string $course_id) : string {
     foreach ($courses as $course) {
         $course_id = $course->id;
     }
@@ -50,16 +52,49 @@ function determine_course_id(array $courses, string $course_id) : string {
     return $course_id;
 }
 
-function get_teaching_course_ids(int $course_id) : array {
+function local_obu_metalinking_get_teaching_course_ids(int $course_id) : array {
     global $DB;
 
-    $sql = 'SELECT parent.id FROM {enrol} e'
-        . ' JOIN {course} parent ON parent.id = e.courseid'
-        . ' WHERE e.enrol = "meta"'
-        . '   AND e.customint1 = ?'
-        . '   AND parent.shortname LIKE "% (%:%)"'
-        . '   AND parent.idnumber LIKE "%.%"'
-        . '   AND parent.visible = 1';
+    $sql = "SELECT DISTINCT parent.id
+            FROM {enrol} e
+            JOIN {course} parent ON parent.id = e.courseid
+            WHERE e.enrol = 'meta'
+               AND e.status = ?
+               AND e.customint1 = ?
+               AND parent.shortname LIKE '% (%:%)'
+               AND parent.idnumber LIKE '%.%'";
 
-    return $DB->get_records_sql($sql, array($course_id));
+    return $DB->get_records_sql($sql, array(ENROL_INSTANCE_ENABLED, $course_id));
+}
+
+function local_obu_metalinking_get_all_teaching_course_ids() : array {
+    global $DB;
+
+    $sql = "SELECT DISTINCT parent.id
+            FROM {enrol} e
+            JOIN {course} parent ON parent.id = e.courseid
+            WHERE e.enrol = 'meta'
+               AND e.status = ?
+               AND parent.shortname LIKE '% (%:%)'
+               AND parent.idnumber LIKE '%.%'";
+
+    return $DB->get_records_sql($sql, array(ENROL_INSTANCE_ENABLED));
+}
+
+function local_obu_metalinking_get_all_nonmeta_enrolled_students($courseid) : array {
+    global $DB;
+
+    $sql = "SELECT DISTINCT u.*
+            FROM {enrol} e 
+            JOIN {user_enrolments} ue ON e.id = ue.enrolid
+            JOIN {user} u ON u.id = ue.userid
+            JOIN {role_assignments} ra ON ra.userid = ue.userid
+            JOIN {role} r ON r.id = ra.roleid
+            JOIN {context} c on c.id = ra.contextid AND c.instanceid = e.courseid
+            WHERE c.contextlevel = 50 
+                AND e.enrol <> 'meta' 
+                AND r.archetype = 'student'
+                AND e.courseid = ?";
+
+    return $DB->get_records_sql($sql, [$courseid]);
 }

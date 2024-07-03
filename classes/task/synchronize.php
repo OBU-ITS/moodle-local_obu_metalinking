@@ -1,5 +1,4 @@
 <?php
-
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -15,21 +14,32 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-/**
- * @package    local_obu_metalinking
- * @author     Joe Souch
- * @copyright  2024, Oxford Brookes University {@link http://www.brookes.ac.uk/}
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- */
+namespace local_obu_metalinking\task;
+
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version = 2024070302;
-$plugin->requires = 2012120301;
-$plugin->component = 'local_obu_metalinking';
-$plugin->maturity = MATURITY_STABLE;
+global $CFG;
+require_once($CFG->dirroot . '/local/obu_metalinking/locallib.php');
 
-$plugin->release = 'v2.0.0';
-$plugin->dependencies = array(
-    'enrol_meta' => 2022112800,
-    'local_obu_group_manager' => 2024060401
-);
+/**
+ * Adhoc task to perform group synchronization
+ *
+ * @package    local_metagroups
+ * @copyright  2018 Paul Holden <paulh@moodle.com>
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+class synchronize extends \core\task\adhoc_task {
+
+    /**
+     * Execute the synchronize task
+     *
+     * @return void
+     */
+    public function execute() {
+        $course = get_course($this->get_custom_data()->courseid);
+
+        $trace = new \text_progress_trace();
+        local_obu_metalinking_sync($trace, $course->id);
+        $trace->finished();
+    }
+}
