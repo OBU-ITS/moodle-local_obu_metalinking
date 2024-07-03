@@ -23,7 +23,7 @@
 
 // Define the web service functions to install.
 $functions = array(
-    'local_get_teaching_course_id_number' => array(
+    'local_obu_metalinking_get_teaching_course_id_number' => array(
         'classname'   => 'local_obu_metalinking',
         'methodname'  => 'get_teaching_course_id_number',
         'classpath'   => 'local/obu_metalinking/externallib.php',
