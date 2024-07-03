@@ -145,7 +145,7 @@ function local_obu_metalinking_determine_course_id_number(array $courses, string
     return $course_id_number;
 }
 
-function local_obu_metalinking_get_teaching_course_id_numbers(int $course_id_number) : array {
+function local_obu_metalinking_get_teaching_course_id_numbers(string $course_id_number) : array {
     global $DB;
 
     $sql = "SELECT DISTINCT parent.idnumber
