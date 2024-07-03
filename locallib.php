@@ -130,3 +130,33 @@ function local_obu_metalinking_get_all_group($courseid) {
 
     return local_obu_group_manager_create_system_group($course);
 }
+
+function local_obu_metalinking_get_teaching_course_id_number(string $course_id_number) : string {
+    $courses = local_obu_metalinking_get_teaching_course_id_numbers($course_id_number);
+
+    return local_obu_metalinking_determine_course_id_number($courses, $course_id_number);
+}
+
+function local_obu_metalinking_determine_course_id_number(array $courses, string $course_id_number) : string {
+    foreach ($courses as $course) {
+        $course_id_number = $course->idnumber;
+    }
+
+    return $course_id_number;
+}
+
+function local_obu_metalinking_get_teaching_course_id_numbers(int $course_id_number) : array {
+    global $DB;
+
+    $sql = "SELECT DISTINCT parent.idnumber
+            FROM {enrol} e
+            JOIN {course} parent ON parent.id = e.courseid
+            JOIN {course} child ON child.id = e.customint1
+            WHERE e.enrol = 'meta'
+               AND e.status = ?
+               AND child.idnumber = ?
+               AND parent.shortname LIKE '% (%:%)'
+               AND parent.idnumber LIKE '%.%'";
+
+    return $DB->get_records_sql($sql, array(ENROL_INSTANCE_ENABLED, $course_id_number));
+}
