@@ -219,7 +219,11 @@ class local_obu_metalinking_observer {
      */
     public static function user_enrolment_created(\core\event\user_enrolment_created $event) {
         if($event->other['enrol'] === 'meta') {
-            return;
+            return false;
+        }
+
+        if(!local_obu_metalinking_is_metalinked_course($event->courseid)) {
+            return false;
         }
 
         $user = \core_user::get_user($event->relateduserid, '*', MUST_EXIST);

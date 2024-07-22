@@ -37,6 +37,26 @@ function local_obu_metalinking_get_teaching_course(object $course) : object {
     return $DB->get_record('course', array('id' => $course_id));
 }
 
+function local_obu_metalinking_is_metalinked_course(int $course_id) : bool {
+    global $DB;
+
+    $sql = "SELECT 1
+            FROM {enrol} e
+            JOIN {course} parent ON parent.id = e.courseid
+            JOIN {course} child ON parent.id = e.customint1
+            WHERE e.enrol = 'meta'
+                AND e.status = ?
+                AND (e.customint1 = ? OR e.courseid = ?)
+                AND parent.shortname LIKE '% (%:%)'
+                AND parent.idnumber LIKE '%.%'
+                AND child.shortname LIKE '% (%:%)'
+                AND child.idnumber LIKE '%.%'";
+
+    $results = $DB->get_records_sql($sql, array(ENROL_INSTANCE_ENABLED, $course_id, $course_id));
+
+    return count($results) > 0;
+}
+
 
 function local_obu_metalinking_get_teaching_course_id(string $course_id) : string {
     $courses = local_obu_metalinking_get_teaching_course_ids($course_id);
