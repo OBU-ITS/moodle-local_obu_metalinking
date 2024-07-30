@@ -101,20 +101,3 @@ function local_obu_metalinking_get_all_teaching_course_ids() : array {
 
     return $DB->get_records_sql($sql, array(ENROL_INSTANCE_ENABLED));
 }
-
-function local_obu_metalinking_get_all_database_enrolled_students($courseid) : array {
-    global $DB;
-
-    $sql = "SELECT DISTINCT u.*
-            FROM {enrol} e 
-            JOIN {user_enrolments} ue ON e.id = ue.enrolid
-            JOIN {user} u ON u.id = ue.userid
-            JOIN {role_assignments} ra ON ra.userid = ue.userid
-            JOIN {context} c on c.id = ra.contextid AND c.instanceid = e.courseid
-            WHERE c.contextlevel = 50 
-                AND e.enrol = 'database' 
-                AND ra.roleid.id = 5
-                AND e.courseid = ?";
-
-    return $DB->get_records_sql($sql, [$courseid]);
-}
