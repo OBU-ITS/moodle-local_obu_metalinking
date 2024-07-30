@@ -53,7 +53,7 @@ function xmldb_local_obu_metalinking_upgrade($oldversion = 0) {
                 FROM {groups_members} gm
                 JOIN {groups} g ON gm.groupid = g.id AND g.idnumber LIKE 'obuSys.%'
                 JOIN {role_assignments} ra ON ra.userid = gm.userid AND ra.roleid <> 5
-                JOIN {context} ctx ON ctx.id = ra.contextid AND c.instanceid = g.courseid AND ctx.contextlevel = 50";
+                JOIN {context} ctx ON ctx.id = ra.contextid AND ctx.instanceid = g.courseid AND ctx.contextlevel = 50";
 
         $results = $DB->get_records_sql($sql);
 
