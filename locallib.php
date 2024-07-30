@@ -78,21 +78,8 @@ function local_obu_metalinking_sync(progress_trace $trace, $courseid = null) {
 
         $trace->output($parent->fullname, 1);
 
-        $parentgrooupall = local_obu_metalinking_get_all_group($courseid);
-        $parentnonmetaenrolments = local_obu_metalinking_get_all_database_enrolled_students($courseid);
-        foreach ($parentnonmetaenrolments as $user) {
-            groups_add_member($parentgrooupall->id, $user->id, 'local_obu_metalinking');
-        }
-
-
         $children = local_obu_metalinking_child_courses($parent->id);
         foreach ($children as $childid) {
-            $childgrooupall = local_obu_metalinking_get_all_group($childid);
-            $childnonmetaenrolments = local_obu_metalinking_get_all_database_enrolled_students($childid);
-            foreach ($childnonmetaenrolments as $user) {
-                groups_add_member($childgrooupall->id, $user->id, 'local_obu_metalinking');
-            }
-
             $child = get_course($childid);
             $trace->output($child->fullname, 2);
 
@@ -122,13 +109,6 @@ function local_obu_metalinking_sync(progress_trace $trace, $courseid = null) {
             }
         }
     }
-}
-
-function local_obu_metalinking_get_all_group($courseid) {
-
-    $course = get_course($courseid);
-
-    return local_obu_group_manager_create_system_group($course);
 }
 
 function local_obu_metalinking_get_teaching_course_id_number(string $course_id_number) : string {

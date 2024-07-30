@@ -59,9 +59,4 @@ $observers = [
         'eventname' => '\core\event\group_member_removed',
         'callback'  => 'local_obu_metalinking_observer::group_member_removed',
     ],
-
-    [
-        'eventname' => '\core\event\user_enrolment_created',
-        'callback'  => 'local_obu_metalinking_observer::user_enrolment_created',
-    ],
 ];

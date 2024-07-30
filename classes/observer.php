@@ -243,49 +243,4 @@ class local_obu_metalinking_observer {
             }
         }
     }
-
-    /**
-     * User enrolment created
-     *
-     * @param \core\event\user_enrolment_created $event
-     * @return bool
-     */
-    public static function user_enrolment_created(\core\event\user_enrolment_created $event) {
-        $enabled = get_config('local_obu_metalinking', 'enableevents');
-        if(!$enabled) {
-            return false;
-        }
-
-        if($event->other['enrol'] === 'meta') {
-            return false;
-        }
-
-        if(!local_obu_metalinking_is_metalinked_course($event->courseid)) {
-            return false;
-        }
-
-        $user = \core_user::get_user($event->relateduserid, '*', MUST_EXIST);
-        $group = local_obu_metalinking_get_all_group($event->courseid);
-
-        groups_add_member($group, $user);
-
-        return true;
-    }
-
-    private static function write_to_log(string $message) {
-        global $DB;
-
-        $obj = new stdClass();
-        $obj->time = time();
-        $obj->userid = 1;
-        $obj->ip = "";
-        $obj->course = 1;
-        $obj->module = "";
-        $obj->cmid = 1;
-        $obj->ation = "test";
-        $obj->url = "/";
-        $obj->info = $message;
-
-        $DB->insert_record("log", $obj);
-    }
 }
