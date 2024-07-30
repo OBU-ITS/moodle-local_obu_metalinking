@@ -81,8 +81,7 @@ function local_obu_metalinking_get_teaching_course_ids(int $course_id) : array {
                AND e.status = ?
                AND e.customint1 = ?
                AND parent.shortname LIKE '% (%:%)'
-               AND parent.idnumber LIKE '%.%'
-               AND c";
+               AND parent.idnumber LIKE '%.%'";
 
     return $DB->get_records_sql($sql, array(ENROL_INSTANCE_ENABLED, $course_id));
 }
