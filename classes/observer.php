@@ -36,6 +36,11 @@ class local_obu_metalinking_observer {
      * @return void
      */
     public static function enrol_instance_created(\core\event\enrol_instance_created $event) {
+        $enabled = get_config('local_obu_metalinking', 'enableevents');
+        if(!$enabled) {
+            return;
+        }
+
         $instance = $event->get_record_snapshot('enrol', $event->objectid);
 
         if (strcasecmp($instance->enrol, 'meta') == 0) {
@@ -61,6 +66,11 @@ class local_obu_metalinking_observer {
      * @return void
      */
     public static function enrol_instance_deleted(\core\event\enrol_instance_deleted $event) {
+        $enabled = get_config('local_obu_metalinking', 'enableevents');
+        if(!$enabled) {
+            return;
+        }
+
         global $DB;
 
         $instance = $event->get_record_snapshot('enrol', $event->objectid);
@@ -89,7 +99,10 @@ class local_obu_metalinking_observer {
      * @return void
      */
     public static function group_created(\core\event\group_created $event) {
-        global $DB;
+        $enabled = get_config('local_obu_metalinking', 'enableevents');
+        if(!$enabled) {
+            return;
+        }
 
         $group = $event->get_record_snapshot('groups', $event->objectid);
 
@@ -112,6 +125,11 @@ class local_obu_metalinking_observer {
      * @return void
      */
     public static function group_updated(\core\event\group_updated $event) {
+        $enabled = get_config('local_obu_metalinking', 'enableevents');
+        if(!$enabled) {
+            return;
+        }
+
         global $DB;
 
         $group = $event->get_record_snapshot('groups', $event->objectid);
@@ -139,6 +157,11 @@ class local_obu_metalinking_observer {
      * @return void
      */
     public static function group_deleted(\core\event\group_deleted $event) {
+        $enabled = get_config('local_obu_metalinking', 'enableevents');
+        if(!$enabled) {
+            return;
+        }
+
         global $DB;
 
         $group = $event->get_record_snapshot('groups', $event->objectid);
@@ -164,6 +187,11 @@ class local_obu_metalinking_observer {
      * @return void
      */
     public static function group_member_added(\core\event\group_member_added $event) {
+        $enabled = get_config('local_obu_metalinking', 'enableevents');
+        if(!$enabled) {
+            return;
+        }
+
         global $DB;
 
         $group = $event->get_record_snapshot('groups', $event->objectid);
@@ -191,6 +219,11 @@ class local_obu_metalinking_observer {
      * @return void
      */
     public static function group_member_removed(\core\event\group_member_removed $event) {
+        $enabled = get_config('local_obu_metalinking', 'enableevents');
+        if(!$enabled) {
+            return;
+        }
+
         global $DB;
 
         $group = $event->get_record_snapshot('groups', $event->objectid);
@@ -209,41 +242,5 @@ class local_obu_metalinking_observer {
                 groups_remove_member($metagroup, $user);
             }
         }
-    }
-
-    /**
-     * User enrolment created
-     *
-     * @param \core\event\user_enrolment_created $event
-     * @return bool
-     */
-    public static function user_enrolment_created(\core\event\user_enrolment_created $event) {
-        if($event->other['enrol'] === 'meta') {
-            return;
-        }
-
-        $user = \core_user::get_user($event->relateduserid, '*', MUST_EXIST);
-        $group = local_obu_metalinking_get_all_group($event->courseid);
-
-        groups_add_member($group, $user);
-
-        return true;
-    }
-
-    private static function write_to_log(string $message) {
-        global $DB;
-
-        $obj = new stdClass();
-        $obj->time = time();
-        $obj->userid = 1;
-        $obj->ip = "";
-        $obj->course = 1;
-        $obj->module = "";
-        $obj->cmid = 1;
-        $obj->ation = "test";
-        $obj->url = "/";
-        $obj->info = $message;
-
-        $DB->insert_record("log", $obj);
     }
 }

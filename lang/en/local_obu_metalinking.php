@@ -27,5 +27,8 @@ $string['privacy:metadata'] = 'The OBU Metalinking plugin does not store any per
 $string['pluginname'] = 'obu_metalinking';
 $string['plugintitle'] = 'OBU Metalinking';
 
+$string['enableevents'] = 'Enable event capture';
+$string['enableeventsdescription'] = 'Toggle to enable the capturing of Moodle events to mirror child metalinked groups into the parent course';
+
 $string['defaultgroupnametext'] = '{$a->name}';
 $string['defaultteachinggroupnametext'] = '{$a->name}';

@@ -24,5 +24,11 @@
 
 defined('MOODLE_INTERNAL') || die;
 
-
-
+if ($hassiteconfig) {
+    $settings = new admin_settingpage(get_string('pluginname', 'local_obu_metalinking'), get_string('plugintitle', 'local_obu_metalinking'));
+    $ADMIN->add('localplugins', $settings);
+    $settings->add(new admin_setting_configcheckbox(
+        'local_obu_metalinking/enableevents',
+        get_string('enableevents', 'local_obu_metalinking'),
+        get_string('enableeventsdescription', 'local_obu_metalinking'), true));
+}

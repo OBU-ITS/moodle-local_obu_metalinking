@@ -37,6 +37,24 @@ function local_obu_metalinking_get_teaching_course(object $course) : object {
     return $DB->get_record('course', array('id' => $course_id));
 }
 
+function local_obu_metalinking_is_metalinked_course(int $course_id) : bool {
+    global $DB;
+
+    $sql = "SELECT 1
+            FROM {enrol} e
+            JOIN {course} parent ON parent.id = e.courseid AND parent.shortname LIKE '% (%:%)' AND parent.idnumber LIKE '%.%'
+            JOIN {course_categories} parentcat ON parentcat.id = parent.category AND parentcat.idnumber LIKE 'SRS%'
+            JOIN {course} child ON child.id = e.customint1 AND child.shortname LIKE '% (%:%)' AND child.idnumber LIKE '%.%'
+            JOIN {course_categories} childcat ON childcat.id = child.category AND childcat.idnumber LIKE 'SRS%'
+            WHERE e.enrol = 'meta'
+                AND e.status = ?
+                AND (e.customint1 = ? OR e.courseid = ?)";
+
+    $results = $DB->get_records_sql($sql, array(ENROL_INSTANCE_ENABLED, $course_id, $course_id));
+
+    return count($results) > 0;
+}
+
 
 function local_obu_metalinking_get_teaching_course_id(string $course_id) : string {
     $courses = local_obu_metalinking_get_teaching_course_ids($course_id);
@@ -58,6 +76,7 @@ function local_obu_metalinking_get_teaching_course_ids(int $course_id) : array {
     $sql = "SELECT DISTINCT parent.id
             FROM {enrol} e
             JOIN {course} parent ON parent.id = e.courseid
+            JOIN {course_categories} cat ON cat.id = parent.category AND cat.idnumber LIKE 'SRS%'
             WHERE e.enrol = 'meta'
                AND e.status = ?
                AND e.customint1 = ?
@@ -73,28 +92,11 @@ function local_obu_metalinking_get_all_teaching_course_ids() : array {
     $sql = "SELECT DISTINCT parent.id
             FROM {enrol} e
             JOIN {course} parent ON parent.id = e.courseid
+            JOIN {course_categories} cat ON cat.id = parent.category AND cat.idnumber LIKE 'SRS%'
             WHERE e.enrol = 'meta'
                AND e.status = ?
                AND parent.shortname LIKE '% (%:%)'
                AND parent.idnumber LIKE '%.%'";
 
     return $DB->get_records_sql($sql, array(ENROL_INSTANCE_ENABLED));
-}
-
-function local_obu_metalinking_get_all_nonmeta_enrolled_students($courseid) : array {
-    global $DB;
-
-    $sql = "SELECT DISTINCT u.*
-            FROM {enrol} e 
-            JOIN {user_enrolments} ue ON e.id = ue.enrolid
-            JOIN {user} u ON u.id = ue.userid
-            JOIN {role_assignments} ra ON ra.userid = ue.userid
-            JOIN {role} r ON r.id = ra.roleid
-            JOIN {context} c on c.id = ra.contextid AND c.instanceid = e.courseid
-            WHERE c.contextlevel = 50 
-                AND e.enrol <> 'meta' 
-                AND r.archetype = 'student'
-                AND e.courseid = ?";
-
-    return $DB->get_records_sql($sql, [$courseid]);
 }
