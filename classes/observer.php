@@ -46,11 +46,6 @@ class local_obu_metalinking_observer {
         if (strcasecmp($instance->enrol, 'meta') == 0) {
             $course = get_course($instance->courseid);
 
-            // Return early if course doesn't use groups.
-            if (groups_get_course_groupmode($course) == NOGROUPS) {
-                return;
-            }
-
             // Immediate synchronization could be expensive, defer to adhoc task.
             $task = new \local_obu_metalinking\task\synchronize();
             $task->set_custom_data(['courseid' => $course->id]);
