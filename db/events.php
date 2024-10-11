@@ -31,8 +31,8 @@ $observers = [
     ],
 
     [
-        'eventname' => '\core\event\enrol_instance_deleted',
-        'callback'  => 'local_obu_metalinking_observer::enrol_instance_deleted',
+        'eventname' => '\local_obu_attendance_events\event\attendance_sessions_restored',
+        'callback'  => 'local_obu_metalinking_observer::attendance_sessions_restored',
     ],
 
     [

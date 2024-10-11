@@ -31,5 +31,7 @@ $plugin->maturity = MATURITY_STABLE;
 $plugin->release = 'v2.1.0';
 $plugin->dependencies = array(
     'enrol_meta' => 2022112800,
-    'local_obu_group_manager' => 2024072902
+    'local_obu_group_manager' => 2024072902,
+    'local_obu_attendance_events' => 2024100901,
+    'local_obu_metalinking_events' => 2024100901
 );

@@ -41,5 +41,13 @@ class synchronize extends \core\task\adhoc_task {
         $trace = new \text_progress_trace();
         local_obu_metalinking_sync($trace, $course->id);
         $trace->finished();
+
+//        $event = \local_obu_metalinking\event\something_happened::create(
+//            array(
+//                'context' => $context,
+//                'objectid' => YYY,
+//                'other' => ZZZ));
+//        // ... code that may add some record snapshots
+//        $event->trigger();
     }
 }
