@@ -23,7 +23,7 @@
  */
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version = 2024091201;
+$plugin->version = 2024100901;
 $plugin->requires = 2012120301;
 $plugin->component = 'local_obu_metalinking';
 $plugin->maturity = MATURITY_STABLE;
