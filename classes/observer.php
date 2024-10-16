@@ -14,6 +14,10 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+use local_obu_metalinking_events\event\metalinking_groups_created;
+use local_obu_metalinking_events\event\metalinking_groups_deleted;
+use local_obu_attendance_events\event\attendance_sessions_restored;
+
 defined('MOODLE_INTERNAL') || die();
 
 global $CFG, $DB;
@@ -43,24 +47,30 @@ class local_obu_metalinking_observer {
 
         $instance = $event->get_record_snapshot('enrol', $event->objectid);
 
-        if (strcasecmp($instance->enrol, 'meta') == 0) {
-            $course = get_course($instance->courseid);
-
-            // Immediate synchronization could be expensive, defer to adhoc task.
-            $task = new \local_obu_metalinking\task\synchronize();
-            $task->set_custom_data(['courseid' => $course->id]);
-
-            \core\task\manager::queue_adhoc_task($task);
+        if (strcasecmp($instance->enrol, 'meta') != 0) {
+            return;
         }
+
+        $parentid = $instance->courseid;
+        $childid = $instance->customint1;
+
+        // Immediate synchronization could be expensive, defer to adhoc task.
+        $task = new \local_obu_metalinking\task\synchronize();
+        $task->set_custom_data(['courseid' => $parentid]);
+
+        \core\task\manager::queue_adhoc_task($task);
+
+        $groupsCreatedEvent = metalinking_groups_created::create_from_metalinked_courses($childid, $parentid);
+        $groupsCreatedEvent->trigger();
     }
 
     /**
      * Enrol instance deleted
      *
-     * @param \core\event\enrol_instance_deleted $event
+     * @param attendance_sessions_restored $event
      * @return void
      */
-    public static function enrol_instance_deleted(\core\event\enrol_instance_deleted $event) {
+    public static function attendance_sessions_restored(attendance_sessions_restored $event) {
         $enabled = get_config('local_obu_metalinking', 'enableevents');
         if(!$enabled) {
             return;
@@ -68,23 +78,23 @@ class local_obu_metalinking_observer {
 
         global $DB;
 
-        $instance = $event->get_record_snapshot('enrol', $event->objectid);
+        $parentid = $event->other['parentid'];
+        $childid = $event->other['childid'];
 
-        if (strcasecmp($instance->enrol, 'meta') == 0) {
-            $course = get_course($instance->courseid);
+        // Get groups from linked course, and delete them from current course.
+        $groups = groups_get_all_groups($childid);
+        foreach ($groups as $group) {
+            if(!local_obu_group_manager_is_system_group($group->idnumber)) {
+                continue;
+            }
 
-            // Get groups from linked course, and delete them from current course.
-            $groups = groups_get_all_groups($instance->customint1);
-            foreach ($groups as $group) {
-                if(!local_obu_group_manager_is_system_group($group->idnumber)) {
-                    continue;
-                }
-
-                if ($metagroup = $DB->get_record('groups', ['courseid' => $course->id, 'idnumber' => $group->idnumber])) {
-                    groups_delete_group($metagroup);
-                }
+            if ($metagroup = $DB->get_record('groups', ['courseid' => $parentid, 'idnumber' => $group->idnumber])) {
+                groups_delete_group($metagroup);
             }
         }
+
+        $groupsDeletedEvent = metalinking_groups_deleted::create_from_metalinked_courses($childid, $parentid);
+        $groupsDeletedEvent->trigger();
     }
 
     /**
