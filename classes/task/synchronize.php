@@ -36,18 +36,8 @@ class synchronize extends \core\task\adhoc_task {
      * @return void
      */
     public function execute() {
-        $course = get_course($this->get_custom_data()->courseid);
-
         $trace = new \text_progress_trace();
-        local_obu_metalinking_sync($trace, $course->id);
+        local_obu_metalinking_sync($trace, $this->get_custom_data()->courseid);
         $trace->finished();
-
-//        $event = \local_obu_metalinking\event\something_happened::create(
-//            array(
-//                'context' => $context,
-//                'objectid' => YYY,
-//                'other' => ZZZ));
-//        // ... code that may add some record snapshots
-//        $event->trigger();
     }
 }

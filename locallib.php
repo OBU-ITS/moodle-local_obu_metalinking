@@ -74,6 +74,10 @@ function local_obu_metalinking_sync(progress_trace $trace, $courseid = null) {
     }
 
     foreach ($courseids as $courseid) {
+        if(!local_obu_metalinking_is_teaching_course($courseid)) {
+            continue;
+        }
+
         $parent = get_course($courseid);
 
         $trace->output($parent->fullname, 1);

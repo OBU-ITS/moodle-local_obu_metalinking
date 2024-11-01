@@ -24,6 +24,19 @@
 
 defined('MOODLE_INTERNAL') || die();
 
+function local_obu_metalinking_is_teaching_course(int $course_id) : bool {
+    global $DB;
+
+    $sql = "SELECT 1
+            FROM {course} c
+            JOIN {course_categories} cat ON cat.id = c.category AND cat.idnumber LIKE 'SRS%'
+            WHERE c.id = ? AND c.shortname LIKE '% (%:%)' AND c.idnumber LIKE '%.%'";
+
+    $results = $DB->get_records_sql($sql, array($course_id));
+
+    return count($results) > 0;
+}
+
 function local_obu_metalinking_get_teaching_course(object $course) : object {
     global $DB;
 
