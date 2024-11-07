@@ -22,6 +22,7 @@ defined('MOODLE_INTERNAL') || die();
 
 global $CFG, $DB;
 require_once($CFG->dirroot . '/local/obu_metalinking/locallib.php');
+require_once($CFG->dirroot . '/local/obu_metalinking/lib.php');
 require_once($CFG->dirroot . '/local/obu_group_manager/lib.php');
 
 /**
@@ -52,7 +53,13 @@ class local_obu_metalinking_observer {
         }
 
         $parentid = $instance->courseid;
+        if(!local_obu_metalinking_is_teaching_course($parentid)) {
+            return;
+        }
         $childid = $instance->customint1;
+        if(!local_obu_metalinking_is_teaching_course($childid)) {
+            return;
+        }
 
         // Immediate synchronization could be expensive, defer to adhoc task.
         $task = new \local_obu_metalinking\task\synchronize();
